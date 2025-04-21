@@ -1,0 +1,62 @@
+.sidebar {
+    background-color: #F1F1F1;
+}
+.main {
+    background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)),
+    url('../src/bg.jpg') center center / cover no-repeat
+}
+/*.main {
+    background: linear-gradient(rgba(208, 232, 197, 0.5), rgba(208, 232, 197, 0.5)),
+    url('../src/bg.jpg') center center / cover no-repeat
+}*/
+.sidebar {
+    position: sticky;
+    top: 0;
+}
+.sidebar a {
+    color: black;
+    text-decoration: none;
+}
+.sidebar .active a {
+    color: white;
+}
+.dashboard-header {
+    background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),
+    url('../src/bg-dashboard.jpg') center center / cover no-repeat;
+    height: 250px;
+    padding: 15px;
+    margin: -16px -16px 20px -16px;
+}
+.page-header {
+    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+    url('../src/bg-page.jpg') center center / cover no-repeat;
+    height: 250px;
+    padding: 15px;
+    margin: -16px -16px 20px -16px;
+    color: #fff;
+}
+.header-tagline {
+    background-image: linear-gradient(to right, #fff, #d0d0d0);
+    margin: -15px;
+    padding: 25px 15px;
+    font-weight: bold;
+    font-size: large;
+}
+
+.profile-wrapper {
+    position: relative;
+}
+
+.profile-card {
+    display: none;
+    position: absolute;
+    top: 80px; /* Letakkan di bawah elemen utama */
+    left: 0;
+    width: 400px;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.profile-wrapper:hover .profile-card {
+    display: block;
+}
