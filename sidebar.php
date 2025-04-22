@@ -39,21 +39,33 @@ $current_page = basename($_SERVER['PHP_SELF']);
             ';
     }
     ?>
-    <?php
-        if($_SESSION['role'] != '2') {
-            echo '
-                <li class="list-group-item ' . (($current_page === 'spring_list.php') ? 'active' : '') . '">
-                    <a href="./spring_list.php">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="20" class="me-1" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M3 3H21V5H3V3ZM3 7H21V9H3V7ZM3 11H21V13H3V11ZM3 15H21V17H3V15ZM3 19H21V21H3V19Z"/>
-                        </svg>
-                        Monitoring Spring
-                    </a>
-                </li>
-               
-            ';
-        }
+<?php
+if ($_SESSION['role'] != '2') {
+    echo '
+    <!-- Dropdown Menu: Monitoring Spring -->
+    <li class="list-group-item" id="monitoringToggle">
+        <div class="d-flex justify-content-between align-items-center" style="cursor: pointer;">
+            <span>
+                <svg xmlns="http://www.w3.org/2000/svg" height="20" class="me-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M3 3H21V5H3V3ZM3 7H21V9H3V7ZM3 11H21V13H3V11ZM3 15H21V17H3V15ZM3 19H21V21H3V19Z"/>
+                </svg>
+                Monitoring Spring
+            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" height="14" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M7 10l5 5 5-5H7z"/>
+            </svg>
+        </div>
+    </li>
+
+    <!-- Submenu Monitoring -->
+    <div class="submenu list-group collapse" id="monitoringMenu">
+        <a href="spring_list.php" class="list-group-item ' . (($current_page === 'spring_list.php') ? 'active' : '') . '">List Monitoring</a>
+        <a href="spring_master.php" class="list-group-item ' . (($current_page === 'spring_master.php') ? 'active' : '') . '">Master Data Spring</a>
+    </div>
+    ';
+}
 ?>
+
 
     <li class="list-group-item <?= ($current_page === 'outofstock.php') ? 'active' : '' ?>">
         <a href="./outofstock.php">
@@ -214,6 +226,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     }
                 }
             });
+        });
+    });
+    $(document).ready(function () {
+        $('#monitoringToggle').on('click', function () {
+            $('#monitoringMenu').slideToggle(200);
         });
     });
 </script>

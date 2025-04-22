@@ -859,5 +859,182 @@
           echo "<option value='{$row['id']}'>{$row['nama_brand']}</option>";
         }
       }
+
+      if ($_POST['action'] === 'fetchBrandsTable') {
+        $brands = $crud->query("SELECT * FROM brands ORDER BY id DESC");
+        foreach ($brands as $index => $b) {
+          echo "<tr>
+            <td>" . ($index + 1) . "</td>
+            <td>{$b['nama_brand']}</td>
+            <td>
+              <button class='btn btn-sm btn-warning btn-edit-brand' data-id='{$b['id']}' data-name='{$b['nama_brand']}'>Edit</button>
+             <button class='btn btn-danger btn-sm btn-delete-brand' data-id='{$b['id']}'>Delete</button>
+
+            </td>
+          </tr>";
+        }
+        exit;
+      }
+      
+      // Tambah brand
+      if ($_POST['action'] === 'insertBrand') {
+        $name = trim($_POST['name']);
     
+        // Cek apakah nama brand sudah ada
+        $stmt = $conn->prepare("SELECT COUNT(*) FROM brands WHERE nama_brand = ?");
+        $stmt->execute([$name]);
+        $exists = $stmt->fetchColumn();
+    
+        if ($exists > 0) {
+            echo "Duplicate";
+            return;
+        }
+    
+        $stmt = $conn->prepare("INSERT INTO brands (nama_brand) VALUES (?)");
+        if ($stmt->execute([$name])) {
+            echo "Success";
+        } else {
+            echo "Failed";
+        }
+    }
+    
+      // Update brand
+      if ($_POST['action'] === 'updateBrand') {
+        $id = intval($_POST['id']);
+        $name = addslashes($_POST['name']);
+        $crud->query("UPDATE brands SET nama_brand = '$name' WHERE id = $id");
+        exit('Success');
+    }
+    
+    
+      // Hapus brand
+      if ($_POST['action'] === 'deleteBrand') {
+        $id = intval($_POST['id']); // pastikan id berupa angka
+        $crud->query("DELETE FROM brands WHERE id = $id");
+        exit('Success');
+    }
+    // Fetch komponen untuk tabel
+    if ($_POST['action'] === 'fetchComponentsForTable') {
+        $components = $crud->query("SELECT * FROM components ORDER BY id DESC");
+        foreach ($components as $index => $c) {
+            echo "<tr>
+                <td>" . ($index + 1) . "</td>
+                <td>{$c['nama_component']}</td>
+                <td>
+                    <button class='btn btn-sm btn-warning btn-edit-component' data-id='{$c['id']}' data-name='{$c['nama_component']}'>Edit</button>
+                    <button class='btn btn-sm btn-danger btn-delete-component' data-id='{$c['id']}'>Delete</button>
+                </td>
+            </tr>";
+        }
+        exit;
+    }
+    
+  
+  // Tambah Komponen
+  if ($_POST['action'] === 'insertComponentWithValidation') {
+    $name = trim($_POST['name']);
+
+    // Validasi nama kosong
+    if (empty($name)) {
+        exit("Empty");
+    }
+
+    // Cek duplikat
+    $result = $crud->query("SELECT COUNT(*) AS total FROM components WHERE nama_component = '$name'");
+    $row = $result ? $result->fetch_assoc() : ['total' => 0];
+
+    if ($row['total'] > 0) {
+        exit("Duplicate");
+    }
+
+    // Insert komponen
+    $insert = $crud->query("INSERT INTO components (nama_component) VALUES ('$name')");
+    if ($insert) {
+        exit("Success");
+    } else {
+        exit("Failed");
+    }
+}
+
+if ($_POST['action'] === 'updateComponentWithValidation') {
+    $id = intval($_POST['id']);
+    $name = trim($_POST['name']);
+
+    // Validasi
+    if (empty($name)) {
+        exit('Empty');
+    }
+
+    // Cek duplikat dengan pengecualian ID saat ini
+    $result = $crud->query("SELECT COUNT(*) AS total FROM components WHERE nama_component = '$name' AND id != $id");
+    $row = $result ? $result->fetch_assoc() : ['total' => 0];
+
+    if ($row['total'] > 0) {
+        exit("Duplicate");
+    }
+
+    // Update
+    $update = $crud->query("UPDATE components SET nama_component = '$name' WHERE id = $id");
+    if ($update) {
+        exit("Success");
+    } else {
+        exit("Failed");
+    }
+}
+  
+  // Hapus Komponen
+  if ($_POST['action'] === 'deleteComponent') {
+    $id = intval($_POST['id']);
+    $crud->query("DELETE FROM components WHERE id = $id");
+    exit('Success');
+  }
+  
+  if ($_POST['action'] === 'fetchSpringTypesTable') {
+    $springTypes = $crud->query("SELECT * FROM spring_types ORDER BY id DESC");
+    foreach ($springTypes as $index => $s) {
+        echo "<tr>
+            <td>" . ($index + 1) . "</td>
+            <td>{$s['kode']}</td>
+            <td>
+              <button class='btn btn-sm btn-warning btn-edit-springtype' data-id='{$s['id']}' data-name='{$s['kode']}'>Edit</button>
+              <button class='btn btn-sm btn-danger btn-delete-springtype' data-id='{$s['id']}'>Delete</button>
+            </td>
+        </tr>";
+    }
+    exit;
+}
+
+if ($_POST['action'] === 'insertSpringTypeWithValidation') {
+    $name = trim($_POST['name']);
+    if (empty($name)) exit("Empty");
+
+    $check = $crud->query("SELECT COUNT(*) AS total FROM spring_types WHERE kode = '$name'");
+    $row = $check->fetch_assoc();
+    if ($row['total'] > 0) exit("Duplicate");
+
+    $insert = $crud->query("INSERT INTO spring_types (kode) VALUES ('$name')");
+    echo $insert ? "Success" : "Failed";
+    exit;
+}
+
+if ($_POST['action'] === 'updateSpringTypeWithValidation') {
+    $id = intval($_POST['id']);
+    $name = trim($_POST['name']);
+    if (empty($name)) exit("Empty");
+
+    $check = $crud->query("SELECT COUNT(*) AS total FROM spring_types WHERE kode = '$name' AND id != $id");
+    $row = $check->fetch_assoc();
+    if ($row['total'] > 0) exit("Duplicate");
+
+    $update = $crud->query("UPDATE spring_types SET kode = '$name' WHERE id = $id");
+    echo $update ? "Success" : "Failed";
+    exit;
+}
+
+if ($_POST['action'] === 'deleteSpringType') {
+    $id = intval($_POST['id']);
+    $crud->query("DELETE FROM spring_types WHERE id = $id");
+    exit('Success');
+}
+
 ?>
