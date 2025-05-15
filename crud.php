@@ -36,16 +36,40 @@ class  crud{
         }
     }
 
-    public function insert($table, $data){
+    // public function insert($table, $data){
+    //     $columns = implode(", ", array_keys($data));
+    //     $values = implode(", ", array_map(function ($item) {
+    //         return "'" . $this->conn->real_escape_string($item) . "'";
+    //     }, array_values($data)));
+
+    //     $sql = "INSERT INTO $table ($columns) VALUES ($values)";
+    //     return $this->query($sql);
+    // }
+    public function insert($table, $data) {
         $columns = implode(", ", array_keys($data));
         $values = implode(", ", array_map(function ($item) {
-            return "'" . $this->conn->real_escape_string($item) . "'";
+            return is_null($item) ? "NULL" : "'" . $this->conn->real_escape_string($item) . "'";
         }, array_values($data)));
-
+    
         $sql = "INSERT INTO $table ($columns) VALUES ($values)";
+    
+        // Logging SQL ke file debug
+        file_put_contents("insert_debug.log", "SQL: $sql\n", FILE_APPEND);
+    
         return $this->query($sql);
     }
-
+    public function beginTransaction() {
+        $this->conn->begin_transaction();
+    }
+    
+    public function commit() {
+        $this->conn->commit();
+    }
+    
+    public function rollback() {
+        $this->conn->rollback();
+    }
+        
     public function update($table, $data, $condition){
         $set = implode(", ", array_map(function ($key, $value) {
             return "$key = '" . $this->conn->real_escape_string($value) . "'";
@@ -72,6 +96,10 @@ class  crud{
     public function escape_string($value) {
         return $this->conn->real_escape_string($value);
     }
+    public function getLastInsertId() {
+        return $this->conn->insert_id;
+    }
+    
 
     public function __destruct(){
         $this->conn->close();

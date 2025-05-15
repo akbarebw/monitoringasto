@@ -713,74 +713,158 @@
         $crud->query($sql);
         echo 'Success';
     }
-    if ($action === 'fetchspringitems') {
-        $sql = "SELECT si.*, st.kode AS tipe, c.nama_component, b.nama_brand
-                FROM spring_items si
-                JOIN spring_types st ON si.spring_type_id = st.id
-                JOIN components c ON si.component_id = c.id
-                JOIN brands b ON si.brand_id = b.id";
-    
-        $result = $crud->query($sql);
-        $data = $crud->fetchAll($result);
-    
-        foreach ($data as $row) {
-            $percent = ($row['a_usage'] > 0) ? min(100, round((($row['total_soh'] - $row['mit']) / $row['a_usage']) * 100)) : 0;
+    elseif ($action === 'fetchspringitems') {
+        $masterSql = "SELECT si.*, st.kode AS tipe, c.nama_component
+                    FROM spring_items si
+                    JOIN spring_types st ON si.spring_type_id = st.id
+                    JOIN components c ON si.component_id = c.id
+                    ORDER BY si.id ASC";
+        $masters = $crud->fetchAll($crud->query($masterSql));
+
+        $no = 1;
+        foreach ($masters as $item) {
+            $percent = ($item['total_soh'] > 0) ? 100 : 0;
             $badgeClass = ($percent >= 100) ? 'bg-success' : 'bg-danger';
 
-            echo "<tr data-id='{$row['id']}'>
-                <td></td>
-                <td data-springtypeid='{$row['spring_type_id']}'>{$row['tipe']}</td>
-                <td data-componentid='{$row['component_id']}'>{$row['nama_component']}</td>
-                <td data-brandid='{$row['brand_id']}'>{$row['nama_brand']}</td>
-                <td>{$row['sc_kpp']}</td>
-                <td>{$row['pn_sm']}</td>
-                <td>{$row['sc_ut']}</td>
-                <td>{$row['pn_ut']}</td>
-                <td>{$row['soh_sm']}</td>
-                <td>{$row['soh_ut']}</td>
-                <td>{$row['total_soh']}</td>
-                <td>{$row['ito']}</td>
-                <td>{$row['jumlah_order']}</td>
-                <td>{$row['mit']}</td>
-                <td>{$row['d_out']}</td>
-                <td>{$row['a_usage']}</td>
-                <td><span class='badge $badgeClass'>{$percent}%</span></td>
-                <td><button class='edit btn btn-primary' data-id='{$row['id']}'>Edit</button></td>
-                <td><button class='delete btn btn-danger' data-id='{$row['id']}'>Delete</button></td>
+            // Tentukan class warna berdasarkan nomor ganjil/genap
+            $rowClass = ($no % 2 === 1) ? 'table-primary' : 'table-secondary';
+
+            // MASTER ROW (dengan nomor dan warna)
+            echo "<tr class='{$rowClass}'>
+                <td>{$no}</td>
+                <td>{$item['tipe']}</td>
+                <td>{$item['nama_component']}</td>
+                <td></td> <!-- brand kosong -->
+                <td></td> <!-- sc_kpp kosong -->
+                <td></td> <!-- pn_sm kosong -->
+                <td>{$item['sc_ut']}</td>
+                <td>{$item['pn_ut']}</td>
+                <td></td> <!-- soh_sm kosong -->
+                <td>{$item['soh_ut']}</td>
+                <td>{$item['total_soh']}</td>
+                <td>{$item['ito']}</td>
+                <td></td> <!-- order kosong -->
+                <td></td> <!-- mit kosong -->
+                <td></td> <!-- d_out kosong -->
+                <td>{$item['a_usage']}</td>
+                <td><span class='badge {$badgeClass}'>{$percent}%</span></td>
+                <td><button class='edit btn btn-primary' data-id='{$item['id']}'>Edit</button></td>
+                <td><button class='delete btn btn-danger' data-id='{$item['id']}'>Delete</button></td>
             </tr>";
+
+            // DETAIL ROWS (tanpa nomor dan tanpa warna)
+            $detailSql = "SELECT sid.*, COALESCE(b.nama_brand, '-') AS nama_brand 
+                        FROM spring_item_details sid 
+                        LEFT JOIN brands b ON sid.brand_id = b.id 
+                        WHERE sid.spring_item_id = {$item['id']}
+                        ORDER BY sid.id ASC";
+            $details = $crud->fetchAll($crud->query($detailSql));
+
+            foreach ($details as $d) {
+                echo "<tr>
+                    <td></td> <!-- kosong untuk detail -->
+                    <td></td>
+                    <td></td>
+                    <td>{$d['nama_brand']}</td>
+                    <td>{$d['sc_kpp']}</td>
+                    <td>{$d['pn_sm']}</td>
+                    <td></td>
+                    <td></td>
+                    <td>{$d['soh_sm']}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>{$d['jumlah_order']}</td>
+                    <td>{$d['mit']}</td>
+                    <td>{$d['d_out']}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>";
+            }
+
+            $no++; // nomor hanya untuk master row
         }
+
     }
-    
+
     elseif ($action === 'insertspringitem') {
-        $soh_sm = $_POST['soh_sm'];
-        $soh_ut = $_POST['soh_ut'];
-        $total_soh = $soh_sm + $soh_ut;
-        $mit = $_POST['mit'];
-        $a_usage = $_POST['a_usage'];
-        $readiness = ($a_usage > 0) ? min(100, round((($total_soh - $mit) / $a_usage) * 100)) : 0;
+        $debugLog = fopen("insert_debug.log", "a");
+        fwrite($debugLog, "\n==== INSERT SPRING ITEM ====\n");
+        fwrite($debugLog, "POST:\n" . print_r($_POST, true));
     
-        $data = [
-            'spring_type_id' => $_POST['spring_type_id'],
-            'component_id' => $_POST['component_id'],
-            'brand_id' => $_POST['brand_id'],
-            'sc_kpp' => $_POST['sc_kpp'],
-            'pn_sm' => $_POST['pn_sm'],
-            'sc_ut' => $_POST['sc_ut'],
-            'pn_ut' => $_POST['pn_ut'],
-            'soh_sm' => $soh_sm,
-            'soh_ut' => $soh_ut,
-            'total_soh' => $total_soh,
-            'ito' => $_POST['ito'],
-            'jumlah_order' => $_POST['jumlah_order'],
-            'mit' => $mit,
-            'd_out' => $_POST['d_out'],
-            'a_usage' => $a_usage,
-            'readiness' => round($readiness)
-        ];
-        $crud->insert('spring_items', $data);
-        echo 'Success';
+        try {
+            $crud->beginTransaction(); // MULAI TRANSAKSI
+    
+            $spring_type_id = $_POST['spring_type_id'];
+            $component_id = $_POST['component_id'];
+            $sc_ut = $_POST['sc_ut'];
+            $pn_ut = $_POST['pn_ut'];
+            $soh_ut = (int)$_POST['soh_ut'];
+            $ito = (int)$_POST['ito'];
+            $a_usage = (int)$_POST['a_usage'];
+            $details = $_POST['details'] ?? [];
+    
+          // Hitung Total SOH SM dari semua detail
+            $total_soh_sm = 0;
+            foreach ($details as $d) {
+                // Pastikan key 'soh_sm' ada dan valid
+                $soh_sm = isset($d['soh_sm']) ? (int)$d['soh_sm'] : 0;
+                $total_soh_sm += $soh_sm;
+            }
+
+
+            // Hitung Total SOH (SM + UT) dan Readiness
+            $total_soh = $total_soh_sm + (int)$_POST['soh_ut'];
+            $readiness = ($total_soh > 0) ? 100 : 0; // Sama persis dengan JavaScript
+    
+            $springItemData = [
+                'spring_type_id' => $spring_type_id,
+                'component_id' => $component_id,
+                'sc_ut' => $sc_ut,
+                'pn_ut' => $pn_ut,
+                'soh_ut' => $soh_ut,
+                'total_soh' => $total_soh,
+                'ito' => $ito,
+                'a_usage' => $a_usage,
+                'readiness' => $readiness
+            ];
+    
+            fwrite($debugLog, "Inserting spring_item:\n" . print_r($springItemData, true));
+    
+            $crud->insert('spring_items', $springItemData);
+            $spring_item_id = $crud->getLastInsertId();
+            fwrite($debugLog, "Inserted spring_item_id: $spring_item_id\n");
+    
+            foreach ($details as $index => $detail) {
+                $detailData = [
+                    'spring_item_id' => $spring_item_id,
+                    'sc_kpp' => $detail['sc_kpp'] ?? '',
+                    'pn_sm' => $detail['pn_sm'] ?? '',
+                    'soh_sm' => (int)($detail['soh_sm'] ?? 0),
+                    'jumlah_order' => (int)($detail['jumlah_order'] ?? 0),
+                    'mit' => (int)($detail['mit'] ?? 0),
+                    'd_out' => (int)($detail['d_out'] ?? 0),
+                    'brand_id' => isset($detail['brand_id']) ? (int)$detail['brand_id'] : null
+                ];
+    
+                fwrite($debugLog, "Detail Row $index:\n" . print_r($detailData, true));
+                $crud->insert('spring_item_details', $detailData);
+            }
+    
+            $crud->commit(); // SELESAIKAN TRANSAKSI
+    
+            echo 'Success';
+        } catch (Exception $e) {
+            $crud->rollback(); // BATALKAN SEMUA JIKA ADA ERROR
+            fwrite($debugLog, "Insert Failed: " . $e->getMessage() . "\n");
+            echo 'Error: ' . $e->getMessage();
+        }
+    
+        fclose($debugLog);
     }
-    
+
     elseif ($action === 'editspringitem') {
         $id = $_POST['id'];
         $soh_sm = $_POST['soh_sm'];

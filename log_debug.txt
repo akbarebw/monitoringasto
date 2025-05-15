@@ -1,0 +1,26 @@
+Array
+(
+    [action] => insertspringitem
+    [spring_type_id] => 1
+    [component_id] => 3
+    [sc_ut] => 1
+    [pn_ut] => 1
+    [soh_ut] => 1
+    [ito] => 0
+    [a_usage] => 0
+    [details] => Array
+        (
+            [0] => Array
+                (
+                    [sc_kpp] => 1
+                    [pn_sm] => 1
+                    [soh_sm] => 1
+                    [jumlah_order] => 1
+                    [mit] => 1
+                    [d_out] => 1
+                    [brand_id] => 2
+                )
+
+        )
+
+)

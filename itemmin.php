@@ -138,62 +138,10 @@ include_once "./notification.php";
   </div>
 </div>
 
-<!-- modal edit monitoring -->
-<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editModalLabel">Edit Monitoring Spring</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="editForm">
-          <input type="hidden" id="editItemId" name="id" />
-          <div class="row g-2">
-            <div class="col-md-4">
-              <label class="form-label">Tipe</label>
-              <div class="input-group">
-                <select class="form-select" id="editSpringType" name="spring_type_id"></select>
-                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalAddSpringType">+</button>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Komponen</label>
-              <div class="input-group">
-                <select class="form-select" id="editComponent" name="component_id"></select>
-                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalAddComponent">+</button>
-              </div>
-            </div>
-          </div>
-
-          <hr class="my-3">
-          <h6>Detail SC KPP / PN SM / SOH SM</h6>
-          <div id="editDetailRows"></div>
-          <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="addEditDetailRow()">+ Tambah Baris</button>
-
-          <hr class="my-3">
-          <div class="row g-2">
-            <div class="col-md-3"><label>SC UT</label><input type="text" class="form-control" id="editScUt" name="sc_ut"></div>
-            <div class="col-md-3"><label>PN UT</label><input type="text" class="form-control" id="editPnUt" name="pn_ut"></div>
-            <div class="col-md-3"><label>SOH UT</label><input type="number" class="form-control" id="editSohUt" name="soh_ut" value="0"></div>
-            <div class="col-md-3"><label>ITO</label><input type="number" class="form-control" id="editIto" name="ito" value="0"></div>
-            <div class="col-md-3"><label>A.Usage</label><input type="number" class="form-control" id="editAUsage" name="a_usage" value="0"></div>
-            <div class="col-md-3"><label>Total SOH</label><input type="number" class="form-control" id="editTotalSoh" readonly></div>
-            <div class="col-md-3"><label>Readiness (%)</label><input type="number" class="form-control" id="editReadiness" readonly></div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-        <button type="button" class="btn btn-primary" id="saveEditDataSpring">Simpan Perubahan</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 
 <!-- Modal: Edit Spring -->
-<!-- <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModal" aria-hidden="true">
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModal" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -236,7 +184,7 @@ include_once "./notification.php";
       </div>
     </div>
   </div>
-</div> -->
+</div>
 
 
 <div class="container-fluid">
@@ -296,32 +244,31 @@ include_once "./notification.php";
                                 <button class="btn btn-outline-secondary" type="button" id="refresh-button">REFRESH DATA</button>
                                 <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#insertModal">INSERT DATA</button>
                             </div>
-                           <table id="myTable" class="table table-hover table-bordered align-middle">
+                            <table id="myTable" class="table table-hover table-bordered align-middle">
                             <thead class="table-light">
-                                <tr>
-                                    <th style="width:40px">No</th>
-                                    <th>Tipe</th>
-                                    <th>Komponen</th>
-                                    <th>Brand</th>
-                                    <th>SC KPP</th>
-                                    <th>PN SM</th>
-                                    <th>SC UT</th>
-                                    <th>PN UT</th>
-                                    <th>SOH SM</th>
-                                    <th>SOH UT</th>
-                                    <th>Total SOH</th>
-                                    <th>ITO</th>
-                                    <th>Order</th>
-                                    <th>MIT</th>
-                                    <th>D.OUT</th>
-                                    <th>A.Usage</th>
-                                    <th>Readiness</th>
-                                    <th>Edit</th>
-                                    <th>Delete</th>
-                                </tr>
+                              <tr>
+                                <th style="width:40px">No</th>
+                                <th>Tipe</th>
+                                <th>Komponen</th>
+                                <th>Brand</th>
+                                <th>SC KPP</th>
+                                <th>PN SM</th>
+                                <th>SC UT</th>
+                                <th>PN UT</th>
+                                <th>SOH SM</th>
+                                <th>SOH UT</th>
+                                <th>Total SOH</th>
+                                <th>ITO</th>
+                                <th>Order</th>
+                                <th>MIT</th>
+                                <th>D.OUT</th>
+                                <th>A.Usage</th>
+                                <th>Readiness</th>
+                                <th colspan="2">Aksi</th>
+                              </tr>
                             </thead>
                             <tbody></tbody>
-                        </table>
+                          </table>
                         </div>
                     </div>
                 </div>
@@ -331,7 +278,7 @@ include_once "./notification.php";
 </div>
 <script>
   
-let searchColumn = 2;
+ let searchColumn = 2;
 let placeholderText = "Search for Komponen...";
 
 function changeSearchColumn(columnIndex, placeholder) {
@@ -379,19 +326,19 @@ document.querySelectorAll('.search-item').forEach(item => {
     });
 });
 
-// function hitungTotalSOH() {
-//   let totalSm = 0;
-//   document.querySelectorAll('input[name^="details"][name$="[soh_sm]"]').forEach(el => {
-//     totalSm += parseInt(el.value || 0);
-//   });
-//   const sohUt = parseInt(document.getElementById('addSohUt')?.value || 0);
-//   const total = totalSm + sohUt;
-//   document.getElementById('totalSoh').value = total;
+function hitungTotalSOH() {
+  let totalSm = 0;
+  document.querySelectorAll('input[name^="details"][name$="[soh_sm]"]').forEach(el => {
+    totalSm += parseInt(el.value || 0);
+  });
+  const sohUt = parseInt(document.getElementById('addSohUt')?.value || 0);
+  const total = totalSm + sohUt;
+  document.getElementById('totalSoh').value = total;
 
-//   // Readiness = jika total_soh >= (soh_sm + soh_ut), maka 100, else 0
-//   const readiness = (total >= totalSm + sohUt) ? 100 : 0;
-//   document.getElementById('readiness').value = readiness;
-// }
+  // Readiness = jika total_soh >= (soh_sm + soh_ut), maka 100, else 0
+  const readiness = (total >= totalSm + sohUt) ? 100 : 0;
+  document.getElementById('readiness').value = readiness;
+}
 function refreshDropdown(target, action) {
     $.ajax({
       url: 'action.php',
@@ -402,27 +349,6 @@ function refreshDropdown(target, action) {
       }
     });
   }
-function hitungTotalSOH() {
-  let totalSm = 0;
-  
-  // 1. Perbaiki selector untuk mengambil SEMUA input SOH SM
-  document.querySelectorAll('input[name^="details"][name*="[soh_sm]"]').forEach(el => {
-    const value = parseInt(el.value) || 0;
-    if (!isNaN(value)) {
-      totalSm += value;
-    }
-  });
-
-  // 2. Ambil nilai SOH UT
-  const sohUt = parseInt(document.getElementById('addSohUt')?.value) || 0;
-  
-  // 3. Hitung total
-  const total = totalSm + sohUt;
-  
-  // 4. Update nilai total dan readiness
-  document.getElementById('totalSoh').value = total;
-  document.getElementById('readiness').value = total > 0 ? 100 : 0;
-}
 
 $(document).ready(function () {
   function loadData() {
@@ -430,22 +356,12 @@ $(document).ready(function () {
       url: 'action.php',
       type: 'POST',
       data: { action: 'fetchspringitems' },
-success: function (response) {
-  $('#myTable tbody').html(response);
-  let nomorMaster = 1;  // penghitung nomor untuk master row saja
-
-  $('#myTable tbody tr').each(function () {
-    let nomorCell = $(this).find('td:first');
-    if (nomorCell.text().trim() !== '') {
-      // Ini baris master (nomor kolom td pertama tidak kosong)
-      nomorCell.text(nomorMaster);
-      nomorMaster++;
-    } else {
-      // Ini baris detail, kosongkan nomor
-      nomorCell.text('');
-    }
-  });
-}
+      success: function (response) {
+        $('#myTable tbody').html(response);
+        $('#myTable tbody tr').each(function (index, row) {
+          $(row).find('td:first').text(index + 1);
+        });
+      }
     });
   }
 
@@ -569,7 +485,7 @@ function addDetailRow() {
       <label>PN SM</label>
       <input type="text" class="form-control" name="details[${rowIndex}][pn_sm]" required>
     </div>
-  <div class="col-md-2">
+    <div class="col-md-2">
       <label>SOH SM</label>
       <input type="number" class="form-control" name="details[${rowIndex}][soh_sm]" value="0" required>
     </div>
@@ -601,8 +517,6 @@ function addDetailRow() {
   refreshDropdown($(row).find('.brand-select'), 'fetchBrands');
   rowIndex++;
 }
-
-
 
 </script>
 </body>
