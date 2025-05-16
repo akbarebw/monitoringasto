@@ -663,6 +663,10 @@ if ($action == 'fetchjumlahbarang') {
     $crud->query($sql);
     echo 'Success';
 } elseif ($action === 'fetchspringitems') {
+    ob_start(); // Start output buffering untuk tab readiness 100
+    $tbody100 = '';
+    $tbody0 = '';
+
     $masterSql = "SELECT si.*, st.kode AS tipe, c.nama_component
                     FROM spring_items si
                     JOIN spring_types st ON si.spring_type_id = st.id
@@ -670,38 +674,39 @@ if ($action == 'fetchjumlahbarang') {
                     ORDER BY si.id ASC";
     $masters = $crud->fetchAll($crud->query($masterSql));
 
-    $no = 1;
+    $no100 = 1;
+    $no0 = 1;
+
     foreach ($masters as $item) {
         $percent = ($item['total_soh'] > 0) ? 100 : 0;
         $badgeClass = ($percent >= 100) ? 'bg-success' : 'bg-danger';
 
-        // Tentukan class warna berdasarkan nomor ganjil/genap
-        $rowClass = ($no % 2 === 1) ? 'table-primary' : 'table-secondary';
+        $rowClass = ($percent >= 100)
+            ? (($no100 % 2 === 1) ? 'table-primary' : 'table-secondary')
+            : (($no0 % 2 === 1) ? 'table-primary' : 'table-secondary');
 
-        // MASTER ROW (dengan nomor dan warna)
-        echo "<tr class='{$rowClass}'>
-                <td>{$no}</td>
+        $masterRow = "<tr class='{$rowClass}'>
+                <td>" . ($percent == 100 ? $no100 : $no0) . "</td>
                 <td>{$item['tipe']}</td>
                 <td>{$item['nama_component']}</td>
-                <td></td> <!-- brand kosong -->
-                <td></td> <!-- sc_kpp kosong -->
-                <td></td> <!-- pn_sm kosong -->
+                <td></td>
+                <td></td>
+                <td></td>
                 <td>{$item['sc_ut']}</td>
                 <td>{$item['pn_ut']}</td>
-                <td></td> <!-- soh_sm kosong -->
-                <td>{$item['soh_ut']}</td>
-                <td>{$item['total_soh']}</td>
+                <td></td>
+                <td style='" . ($item['soh_ut'] == 0 ? "background-color:#ffcccc" : "") . "'>{$item['soh_ut']}</td>
+                <td style='" . ($item['total_soh'] == 0 ? "background-color:#ffcccc" : "") . "'>{$item['total_soh']}</td>
                 <td>{$item['ito']}</td>
-                <td></td> <!-- order kosong -->
-                <td></td> <!-- mit kosong -->
-                <td></td> <!-- d_out kosong -->
+                <td></td>
+                <td></td>
+                <td></td>
                 <td>{$item['a_usage']}</td>
                 <td><span class='badge {$badgeClass}'>{$percent}%</span></td>
                 <td><button class='edit btn btn-primary' data-id='{$item['id']}'>Edit</button></td>
                 <td><button class='delete btn btn-danger' data-id='{$item['id']}'>Delete</button></td>
             </tr>";
 
-        // DETAIL ROWS (tanpa nomor dan tanpa warna)
         $detailSql = "SELECT sid.*, COALESCE(b.nama_brand, '-') AS nama_brand 
                         FROM spring_item_details sid 
                         LEFT JOIN brands b ON sid.brand_id = b.id 
@@ -709,9 +714,10 @@ if ($action == 'fetchjumlahbarang') {
                         ORDER BY sid.id ASC";
         $details = $crud->fetchAll($crud->query($detailSql));
 
+        $detailRows = '';
         foreach ($details as $d) {
-            echo "<tr>
-                    <td></td> <!-- kosong untuk detail -->
+            $detailRows .= "<tr>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td>{$d['nama_brand']}</td>
@@ -719,7 +725,7 @@ if ($action == 'fetchjumlahbarang') {
                     <td>{$d['pn_sm']}</td>
                     <td></td>
                     <td></td>
-                    <td>{$d['soh_sm']}</td>
+                    <td style='" . ($d['soh_sm'] == 0 ? "background-color:#ffcccc" : "") . "'>{$d['soh_sm']}</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -733,8 +739,20 @@ if ($action == 'fetchjumlahbarang') {
                 </tr>";
         }
 
-        $no++; // nomor hanya untuk master row
+        if ($percent == 100) {
+            $tbody100 .= $masterRow . $detailRows;
+            $no100++;
+        } else {
+            $tbody0 .= $masterRow . $detailRows;
+            $no0++;
+        }
     }
+
+    echo json_encode([
+        "readiness_100" => $tbody100,
+        "readiness_0" => $tbody0
+    ]);
+    exit;
 } elseif ($action === 'insertspringitem') {
     $debugLog = fopen("insert_debug.log", "a");
     fwrite($debugLog, "\n==== INSERT SPRING ITEM ====\n");

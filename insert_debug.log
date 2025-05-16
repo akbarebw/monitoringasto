@@ -1953,3 +1953,60 @@ Array
     [brand_id] => 2
 )
 SQL: INSERT INTO spring_item_details (spring_item_id, sc_kpp, pn_sm, soh_sm, jumlah_order, mit, d_out, brand_id) VALUES ('47', '1', '1', '2', '0', '0', '0', '2')
+
+==== INSERT SPRING ITEM ====
+POST:
+Array
+(
+    [action] => insertspringitem
+    [spring_type_id] => 1
+    [component_id] => 3
+    [sc_ut] => 1
+    [pn_ut] => 1
+    [soh_ut] => 0
+    [ito] => 0
+    [a_usage] => 0
+    [details] => Array
+        (
+            [0] => Array
+                (
+                    [sc_kpp] => 1
+                    [pn_sm] => 1
+                    [soh_sm] => 0
+                    [jumlah_order] => 0
+                    [mit] => 0
+                    [d_out] => 0
+                    [brand_id] => 2
+                )
+
+        )
+
+)
+Inserting spring_item:
+Array
+(
+    [spring_type_id] => 1
+    [component_id] => 3
+    [sc_ut] => 1
+    [pn_ut] => 1
+    [soh_ut] => 0
+    [total_soh] => 0
+    [ito] => 0
+    [a_usage] => 0
+    [readiness] => 0
+)
+SQL: INSERT INTO spring_items (spring_type_id, component_id, sc_ut, pn_ut, soh_ut, total_soh, ito, a_usage, readiness) VALUES ('1', '3', '1', '1', '0', '0', '0', '0', '0')
+Inserted spring_item_id: 48
+Detail Row 0:
+Array
+(
+    [spring_item_id] => 48
+    [sc_kpp] => 1
+    [pn_sm] => 1
+    [soh_sm] => 0
+    [jumlah_order] => 0
+    [mit] => 0
+    [d_out] => 0
+    [brand_id] => 2
+)
+SQL: INSERT INTO spring_item_details (spring_item_id, sc_kpp, pn_sm, soh_sm, jumlah_order, mit, d_out, brand_id) VALUES ('48', '1', '1', '0', '0', '0', '0', '2')

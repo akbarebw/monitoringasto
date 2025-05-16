@@ -262,7 +262,7 @@ include_once "./notification.php";
                   <button class="btn btn-outline-secondary" type="button" id="refresh-button">REFRESH DATA</button>
                   <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#insertModal">INSERT DATA</button>
                 </div>
-                <table id="myTable" class="table table-hover table-bordered align-middle">
+                <!-- <table id="myTable" class="table table-hover table-bordered align-middle">
                   <thead class="table-light">
                     <tr>
                       <th style="width:40px">No</th>
@@ -287,7 +287,79 @@ include_once "./notification.php";
                     </tr>
                   </thead>
                   <tbody></tbody>
-                </table>
+                </table> -->
+                <div class="d-flex flex-column">
+                  <!-- Tab Navigation -->
+                  <ul class="nav nav-tabs" id="readinessTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                      <a class="nav-link active" id="readiness-100-tab" data-bs-toggle="tab" href="#readiness-100" role="tab" aria-controls="readiness-100" aria-selected="true">Readiness 100%</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <a class="nav-link" id="readiness-0-tab" data-bs-toggle="tab" href="#readiness-0" role="tab" aria-controls="readiness-0" aria-selected="false">Readiness 0%</a>
+                    </li>
+                  </ul>
+
+                  <!-- Tab Content -->
+                  <div class="tab-content mt-2" id="readinessTabsContent">
+                    <div class="tab-pane fade show active" id="readiness-100" role="tabpanel" aria-labelledby="readiness-100-tab">
+                      <table id="myTable" class="table table-hover table-bordered align-middle">
+                        <thead class="table-light">
+                          <tr>
+                            <th>No</th>
+                            <th>Tipe</th>
+                            <th>Komponen</th>
+                            <th>Brand</th>
+                            <th>SC KPP</th>
+                            <th>PN SM</th>
+                            <th>SC UT</th>
+                            <th>PN UT</th>
+                            <th>SOH SM</th>
+                            <th>SOH UT</th>
+                            <th>TOTAL SOH SM + UT</th>
+                            <th>ITO</th>
+                            <th>Order</th>
+                            <th>MIT</th>
+                            <th>D.OUT</th>
+                            <th>A.Usage</th>
+                            <th>Readiness</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                          </tr>
+                        </thead>
+                        <tbody id="readiness100TableBody"></tbody>
+                      </table>
+                    </div>
+                    <div class="tab-pane fade" id="readiness-0" role="tabpanel" aria-labelledby="readiness-0-tab">
+                      <table id="myTable" class="table table-hover table-bordered align-middle">
+                        <thead class="table-light">
+                          <tr>
+                            <th>No</th>
+                            <th>Tipe</th>
+                            <th>Komponen</th>
+                            <th>Brand</th>
+                            <th>SC KPP</th>
+                            <th>PN SM</th>
+                            <th>SC UT</th>
+                            <th>PN UT</th>
+                            <th>SOH SM</th>
+                            <th>SOH UT</th>
+                            <th>TOTAL SOH SM + UT</th>
+                            <th>ITO</th>
+                            <th>Order</th>
+                            <th>MIT</th>
+                            <th>D.OUT</th>
+                            <th>A.Usage</th>
+                            <th>Readiness</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                          </tr>
+                        </thead>
+                        <tbody id="readiness0TableBody"></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
@@ -487,25 +559,22 @@ include_once "./notification.php";
         $.ajax({
           url: 'action.php',
           type: 'POST',
+          dataType: 'json',
           data: {
             action: 'fetchspringitems'
           },
-          success: function(response) {
-            $('#myTable tbody').html(response);
-            let nomorMaster = 1;
-
-            $('#myTable tbody tr').each(function() {
-              let nomorCell = $(this).find('td:first');
-              if (nomorCell.text().trim() !== '') {
-                nomorCell.text(nomorMaster);
-                nomorMaster++;
-              } else {
-                nomorCell.text('');
-              }
-            });
+          success: function(res) {
+            $('#readiness100TableBody').html(res.readiness_100);
+            $('#readiness0TableBody').html(res.readiness_0);
+          },
+          error: function(xhr, status, error) {
+            console.error("Gagal memuat data:", error);
+            alert("Gagal memuat data. Silakan cek console.");
           }
         });
       }
+
+
 
       $('#refresh-button').on('click', loadData);
       loadData();
