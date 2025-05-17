@@ -192,6 +192,29 @@ include_once "./notification.php";
       </div>
     </div>
   </div>
+  <!-- Modal Upload TXT -->
+  <div class="modal fade" id="modalUploadTxt" tabindex="-1" aria-labelledby="modalUploadTxtLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form method="POST" enctype="multipart/form-data" id="uploadTxtForm" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Upload File TXT Monitoring Spring</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">File TXT</label>
+            <input type="file" name="spring_file" class="form-control" accept=".txt" required>
+          </div>
+          <p class="text-muted small">Format: <code>Tipe|Komponen|SC UT|PN UT|SOH UT|ITO|A.Usage|SC KPP,PN SM,SOH SM,Order,MIT,D.OUT,Brand;...</code></p>
+        </div>
+        <div id="uploadStatus" class="mt-2"></div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Upload</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
 
   <div class="container-fluid">
@@ -261,6 +284,7 @@ include_once "./notification.php";
                   <input type="text" id="myInput" class="form-control" onkeyup="myFunction()" placeholder="Search for Komponen...">
                   <button class="btn btn-outline-secondary" type="button" id="refresh-button">REFRESH DATA</button>
                   <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#insertModal">INSERT DATA</button>
+                  <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalUploadTxt">UPLOAD TXT</button>
                 </div>
                 <!-- <table id="myTable" class="table table-hover table-bordered align-middle">
                   <thead class="table-light">
@@ -835,6 +859,34 @@ include_once "./notification.php";
       ) {
         hitungTotalSOH_Edit();
       }
+    });
+    $(document).ready(function() {
+      $('#uploadTxtForm').on('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const $submitBtn = $(this).find('button[type="submit"]');
+        const $status = $('#uploadStatus');
+
+        $submitBtn.prop('disabled', true).text('Uploading...');
+
+        $.ajax({
+          url: 'spring_upload_process.php',
+          type: 'POST',
+          data: formData,
+          contentType: false,
+          processData: false,
+          success: function(response) {
+            $status.html('<div class="alert alert-info">' + response + '</div>');
+            $submitBtn.prop('disabled', false).text('Upload');
+            $('#refresh-button').click(); // optional: refresh table if needed
+          },
+          error: function(xhr) {
+            $status.html('<div class="alert alert-danger">Upload gagal: ' + xhr.responseText + '</div>');
+            $submitBtn.prop('disabled', false).text('Upload');
+          }
+        });
+      });
     });
   </script>
 </body>

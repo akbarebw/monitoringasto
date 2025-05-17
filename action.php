@@ -671,7 +671,7 @@ if ($action == 'fetchjumlahbarang') {
                     FROM spring_items si
                     JOIN spring_types st ON si.spring_type_id = st.id
                     JOIN components c ON si.component_id = c.id
-                    ORDER BY si.id ASC";
+                    ORDER BY si.id DESC";
     $masters = $crud->fetchAll($crud->query($masterSql));
 
     $no100 = 1;
@@ -1229,4 +1229,111 @@ if ($_POST['action'] === 'deleteSpringType') {
     $id = intval($_POST['id']);
     $crud->query("DELETE FROM spring_types WHERE id = $id");
     exit('Success');
+}
+if ($action == 'fetchstokminimum') {
+    $result = $crud->query("SELECT * FROM items ORDER BY id DESC");
+    $data = $crud->fetchAll($result);
+
+    foreach ($data as $index => $row) {
+        $id = $row['id'];
+
+        // STOCK LEVEL
+        $stockRow = ['min_stock' => '-', 'max_stock' => '-', 'oh_skk' => '-'];
+        $resStock = $crud->query("SELECT * FROM stock_levels WHERE item_id = $id LIMIT 1");
+        if ($resStock && $resStock->num_rows > 0) {
+            $stockRow = $resStock->fetch_assoc();
+        }
+
+        // PURCHASE ORDER
+        $poRow = ['total_po' => '-', 'incoming' => '-', 'eta' => null];
+        $resPO = $crud->query("SELECT * FROM purchase_orders WHERE item_id = $id LIMIT 1");
+        if ($resPO && $resPO->num_rows > 0) {
+            $poRow = $resPO->fetch_assoc();
+        }
+
+        $etaValue = (!empty($poRow['eta']) && $poRow['eta'] !== '0000-00-00')
+            ? date("d/m/Y", strtotime($poRow['eta']))
+            : '-';
+
+
+        echo "<tr data-id='$id'>
+            <td></td>
+            <td>{$row['mnemonic']}</td>
+            <td>{$row['old_sc']}</td>
+            <td>{$row['old_pn']}</td>
+            <td>{$row['new_pn']}</td>
+            <td>{$row['description']}</td>
+            <td>{$stockRow['min_stock']}</td>
+            <td>{$stockRow['max_stock']}</td>
+            <td>{$stockRow['oh_skk']}</td>
+            <td>{$poRow['total_po']}</td>
+            <td>{$poRow['incoming']}</td>
+            <td>{$etaValue}</td>
+            <td>{$row['status']}</td>
+            <td>{$row['remark']}</td>
+            <td><button class='edit btn btn-primary btn-sm' data-id='{$id}'>Edit</button></td>
+            <td><button class='delete btn btn-danger btn-sm' data-id='{$id}'>Delete</button></td>
+        </tr>";
+    }
+} elseif ($action == 'insertstokminimum') {
+    $itemData = [
+        'mnemonic' => $_POST['mnemonic'] ?? '',
+        'old_sc' => $_POST['old_sc'] ?? '',
+        'old_pn' => $_POST['old_pn'] ?? '',
+        'new_pn' => $_POST['new_pn'] ?? '',
+        'description' => $_POST['description'] ?? '',
+        'status' => $_POST['status'] ?? '',
+        'remark' => $_POST['remark'] ?? ''
+    ];
+    $crud->insert('items', $itemData);
+    $item_id = $crud->getLastInsertId();
+
+    $crud->insert('stock_levels', [
+        'item_id' => $item_id,
+        'min_stock' => $_POST['min_stock'] ?? 0,
+        'max_stock' => $_POST['max_stock'] ?? 0,
+        'oh_skk' => $_POST['oh_skk'] ?? 0
+    ]);
+
+    $eta = isset($_POST['eta']) && !empty($_POST['eta']) ? $_POST['eta'] : null;
+
+    $crud->insert('purchase_orders', [
+        'item_id' => $item_id,
+        'total_po' => $_POST['total_po'] ?? 0,
+        'incoming' => $_POST['incoming'] ?? null,
+        'eta' => $eta
+    ]);
+
+    echo 'Success';
+} elseif ($action == 'updatestokminimum') {
+    $id = $_POST['id'];
+    $crud->update('items', [
+        'mnemonic' => $_POST['mnemonic'],
+        'old_sc' => $_POST['old_sc'],
+        'old_pn' => $_POST['old_pn'],
+        'new_pn' => $_POST['new_pn'],
+        'description' => $_POST['description'],
+        'status' => $_POST['status'],
+        'remark' => $_POST['remark']
+    ], "id = $id");
+
+    $crud->update('stock_levels', [
+        'min_stock' => $_POST['min_stock'],
+        'max_stock' => $_POST['max_stock'],
+        'oh_skk' => $_POST['oh_skk']
+    ], "item_id = $id");
+
+    $crud->update('purchase_orders', [
+        'total_po' => $_POST['total_po'],
+        'incoming' => $_POST['incoming'],
+        'eta' => $_POST['eta']
+    ], "item_id = $id");
+
+    echo "Updated";
+} elseif ($action == 'deletestokminimum') {
+    $id = $_POST['id'];
+    $crud->delete('stock_levels', "item_id = $id");
+    $crud->delete('purchase_orders', "item_id = $id");
+    $crud->delete('items', "id = $id");
+    echo "Deleted";
 }

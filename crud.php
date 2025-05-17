@@ -1,13 +1,15 @@
 <?php
 
-class  crud{
+class  crud
+{
     private $host;
     private $user;
     private $password;
     private $database;
     private $conn;
 
-    public function __construct($host, $user, $password, $database){
+    public function __construct($host, $user, $password, $database)
+    {
         $this->host = $host;
         $this->user = $user;
         $this->password = $password;
@@ -16,7 +18,8 @@ class  crud{
         $this->connect();
     }
 
-    private function connect() {
+    private function connect()
+    {
         $this->conn = new mysqli($this->host, $this->user, $this->password, $this->database);
 
         if ($this->conn->connect_error) {
@@ -24,7 +27,8 @@ class  crud{
         }
     }
 
-    public function query($sql){
+    public function query($sql)
+    {
         $result = $this->conn->query($sql);
 
         if ($result === TRUE) {
@@ -45,32 +49,37 @@ class  crud{
     //     $sql = "INSERT INTO $table ($columns) VALUES ($values)";
     //     return $this->query($sql);
     // }
-    public function insert($table, $data) {
+    public function insert($table, $data)
+    {
         $columns = implode(", ", array_keys($data));
         $values = implode(", ", array_map(function ($item) {
             return is_null($item) ? "NULL" : "'" . $this->conn->real_escape_string($item) . "'";
         }, array_values($data)));
-    
+
         $sql = "INSERT INTO $table ($columns) VALUES ($values)";
-    
+
         // Logging SQL ke file debug
         file_put_contents("insert_debug.log", "SQL: $sql\n", FILE_APPEND);
-    
+
         return $this->query($sql);
     }
-    public function beginTransaction() {
+    public function beginTransaction()
+    {
         $this->conn->begin_transaction();
     }
-    
-    public function commit() {
+
+    public function commit()
+    {
         $this->conn->commit();
     }
-    
-    public function rollback() {
+
+    public function rollback()
+    {
         $this->conn->rollback();
     }
-        
-    public function update($table, $data, $condition){
+
+    public function update($table, $data, $condition)
+    {
         $set = implode(", ", array_map(function ($key, $value) {
             return "$key = '" . $this->conn->real_escape_string($value) . "'";
         }, array_keys($data), $data));
@@ -79,12 +88,14 @@ class  crud{
         return $this->query($sql);
     }
 
-    public function delete($table, $condition){
+    public function delete($table, $condition)
+    {
         $sql = "DELETE FROM $table WHERE $condition";
         return $this->query($sql);
     }
 
-    public function fetchAll($result){
+    public function fetchAll($result)
+    {
         $rows = [];
         while ($row = $result->fetch_assoc()) {
             $rows[] = $row;
@@ -93,16 +104,23 @@ class  crud{
     }
 
     // Tambahkan metode escape_string
-    public function escape_string($value) {
+    public function escape_string($value)
+    {
         return $this->conn->real_escape_string($value);
     }
-    public function getLastInsertId() {
+    public function getLastInsertId()
+    {
         return $this->conn->insert_id;
     }
-    
 
-    public function __destruct(){
+
+    public function __destruct()
+    {
         $this->conn->close();
+    }
+    public function getConnection()
+    {
+        return $this->conn;
     }
 }
 // Example Usage

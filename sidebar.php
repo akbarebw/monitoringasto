@@ -70,8 +70,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <?php
     if ($_SESSION['role'] != '2') {
         echo '
-        <li class="list-group-item ' . (($current_page === "itemmin.php") ? "active" : "") . '">
-            <a href="./itemmin.php">
+        <li class="list-group-item ' . (($current_page === "stokminimum.php") ? "active" : "") . '">
+            <a href="./stokminimum.php">
                 <svg xmlns="http://www.w3.org/2000/svg" height="20" class="me-1" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10
                              10-4.48 10-10S17.52 2 12 2zm0 
